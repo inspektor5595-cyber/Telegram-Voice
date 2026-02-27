@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ElevenLabs Voice Collection</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        bg: '#0b0f19', card: '#111827', border: '#1f2937', primary: '#2563eb',
+                        success: '#22c55e',
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    animation: {
+                        'blob': 'blob 10s infinite',
+                    },
+                    keyframes: {
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0b0f19; color: #e5e7eb; overflow-x: hidden; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        .custom-select {
+            appearance: none; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.75rem center; background-repeat: no-repeat; background-size: 1.2em 1.2em; padding-right: 2.5rem;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+        
+        /* --- Анимированный фон --- */
+        .ambient-bg {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; overflow: hidden; pointer-events: none;
+        }
+        .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.35; }
+        .blob-1 { top: -10%; left: -10%; width: 500px; height: 500px; background: #1e3a8a; animation-delay: 0s; }
+        .blob-2 { bottom: -10%; right: -10%; width: 600px; height: 600px; background: #2563eb; animation-delay: 2s; opacity: 0.3; }
+        .blob-3 { top: 40%; left: 40%; width: 400px; height: 400px; background: #0ea5e9; animation-delay: 4s; opacity: 0.25; }
+    </style>
+</head>
+
+<body x-data="voiceApp()" class="min-h-screen flex flex-col relative text-sm">
+
+    <div class="ambient-bg">
+        <div class="blob blob-1 animate-blob"></div>
+        <div class="blob blob-2 animate-blob"></div>
+        <div class="blob blob-3 animate-blob"></div>
+    </div>
+
+    <div class="fixed top-5 right-5 z-50 transition-all duration-300 transform" :class="toast.show ? 'translate-y-0 opacity-100' : '-translate-y-10 opacity-0'">
+        <div class="bg-primary text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 font-bold shadow-blue-500/20">
+            <i data-lucide="check-circle" class="w-5 h-5"></i><span x-text="toast.message"></span>
+        </div>
+    </div>
+
+    <header class="relative md:sticky top-0 z-40 bg-bg/95 backdrop-blur-md border-b border-border shadow-2xl">
+        <div class="max-w-7xl mx-auto px-4 py-2 md:py-4 space-y-4">
+            
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-400 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+                            <i data-lucide="mic-2" class="text-white w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-lg font-extrabold text-white tracking-tight">YO-YO STUDIO</h1>
+                            <p class="text-[11px] text-gray-400 font-mono"><span x-text="filteredVoices.length">0</span> voices loaded</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex bg-card border border-border rounded-lg p-1 ml-2 md:ml-4">
+                        <button @click="switchTab('standard')" :class="activeTab === 'standard' ? 'bg-primary text-white shadow-md' : 'text-gray-400 hover:text-white'" class="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider rounded transition-all">Standard</button>
+                        <button @click="switchTab('public')" :class="activeTab === 'public' ? 'bg-primary text-white shadow-md' : 'text-gray-400 hover:text-white'" class="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider rounded transition-all">Public</button>
+                    </div>
+                </div>
+
+                <div class="relative w-full md:w-80">
+                    <i data-lucide="search" class="absolute left-3 top-3 w-4 h-4 text-gray-500"></i>
+                    <input type="text" x-model="filters.search" placeholder="Поиск по имени, ID..." class="w-full bg-card border border-border rounded-lg py-2.5 pl-10 pr-3 text-xs text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder-gray-500 h-10">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                
+                <select x-model="filters.sort" class="custom-select w-full bg-card border border-primary/40 text-white text-xs font-bold rounded-lg px-3 outline-none focus:border-primary cursor-pointer hover:bg-card/80 h-10 shadow-sm">
+                    <option value="popular">🔥 По популярности</option>
+                    <option value="latest">🆕 Сначала новые</option>
+                    <option value="usage">📊 По использованию</option>
+                    <option value="az">🔤 По имени (A-Z)</option>
+                </select>
+
+                <template x-for="(list, key) in {language: options.languages, user_style: options.styles, descriptive: options.descriptives, gender: options.genders, accent: options.accents, age: options.ages}">
+                    <select x-model="filters[key]" class="custom-select w-full bg-card border border-border text-gray-300 text-xs font-medium rounded-lg px-3 outline-none focus:border-primary focus:text-white cursor-pointer hover:bg-[#1f2937] hover:border-gray-500 transition-colors h-10">
+                        <option value="" x-text="filterLabels[key]"></option>
+                        <template x-for="opt in list" :key="opt.code || opt">
+                            <option :value="opt.code || opt" x-text="opt.name || (typeof opt === 'string' ? opt : opt.code)"></option>
+                        </template>
+                    </select>
+                </template>
+
+                <button @click="resetFilters()" class="w-full h-10 flex items-center justify-center gap-2 bg-[#1f2937] border border-gray-600 text-gray-300 hover:text-white hover:bg-red-900/30 hover:border-red-500/50 rounded-lg text-xs font-bold uppercase tracking-wider transition-all">
+                    <i data-lucide="x-circle" class="w-4 h-4"></i> Сброс
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 w-full">
+        <div x-show="loading" class="flex flex-col items-center justify-center py-40">
+            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mb-4"></div>
+            <p class="text-gray-400 text-xs font-bold uppercase tracking-widest animate-pulse">Загрузка базы данных...</p>
+        </div>
+
+        <div x-show="!loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <template x-for="voice in displayedVoices" :key="voice.id">
+                
+                <div class="relative bg-card border border-border rounded-xl p-3.5 hover:border-primary/50 transition-all duration-200 flex flex-col gap-3 group hover:shadow-2xl hover:shadow-blue-900/20 overflow-visible z-10 hover:z-20">
+                    
+                    <div class="flex items-start gap-3">
+                        <button @click.stop="toggleAudio(voice)" 
+                                class="w-11 h-11 shrink-0 rounded-full bg-[#1f2937] hover:bg-white hover:text-black border border-gray-700 flex items-center justify-center transition-all duration-200 shadow-md group-hover:scale-105 group-hover:border-primary active:scale-95"
+                                :class="isPlaying && currentId === voice.id ? 'bg-primary text-white border-primary shadow-[0_0_15px_rgba(59,130,246,0.6)]' : 'text-white'">
+                            <i :data-lucide="isPlaying && currentId === voice.id ? 'pause' : 'play'" class="w-5 h-5 fill-current ml-0.5"></i>
+                        </button>
+
+                        <div class="min-w-0 flex-1 flex flex-col justify-center">
+                            <div class="flex items-center justify-between gap-2 mb-0.5">
+                                <h2 class="text-[14px] font-bold text-white leading-tight truncate group-hover:text-blue-400 transition-colors" x-text="voice.name"></h2>
+                                <div x-show="voice.usage > 0" class="shrink-0 flex items-center gap-1 text-[9px] text-green-400 font-bold font-mono bg-green-900/30 px-1.5 py-0.5 rounded border border-green-500/30">
+                                    <span x-text="formatUsage(voice.usage)"></span>
+                                </div>
+                            </div>
+                            
+                            <p class="text-[10px] text-blue-400 font-bold uppercase tracking-wide truncate opacity-90" x-text="voice.user_style || voice.style_display"></p>
+                            
+                            <div class="flex flex-wrap items-center gap-2 mt-1.5 text-[10px] text-gray-400 font-medium">
+                                <div class="flex items-center gap-1"><span class="capitalize" x-text="voice.gender"></span></div>
+                                <span class="w-0.5 h-2.5 bg-gray-700 rounded-full"></span>
+                                <span class="capitalize" x-text="voice.age"></span>
+                                <span class="w-0.5 h-2.5 bg-gray-700 rounded-full"></span>
+                                <span class="capitalize truncate max-w-[70px]" x-text="voice.accent"></span>
+                                
+                                <span class="w-0.5 h-2.5 bg-gray-700 rounded-full"></span>
+
+                                <div class="relative group/lang cursor-help ml-auto sm:ml-0">
+                                    <div class="flex items-center gap-1 text-gray-300 bg-gray-800 px-1.5 py-0.5 rounded hover:bg-gray-700 transition-colors border border-gray-700">
+                                        <i data-lucide="globe" class="w-3 h-3 text-blue-400"></i>
+                                        <span x-text="voice.exact_languages.length + ' Langs'"></span>
+                                    </div>
+                                    
+                                    <div class="absolute right-0 sm:left-0 bottom-full mb-2 w-48 bg-gray-900 border border-gray-700 rounded-lg shadow-2xl p-2 z-50 invisible opacity-0 translate-y-2 transition-all duration-200 group-hover/lang:visible group-hover/lang:opacity-100 group-hover/lang:translate-y-0 pointer-events-none">
+                                        <div class="text-[9px] text-gray-500 uppercase font-bold mb-1 border-b border-gray-800 pb-1">Available Languages</div>
+                                        <div class="flex flex-wrap gap-1">
+                                            <template x-for="lang in voice.exact_languages" :key="lang.id">
+                                                <span class="bg-blue-900/40 text-blue-200 border border-blue-500/20 px-1.5 py-0.5 rounded text-[10px]" x-text="lang.lang.toUpperCase()"></span>
+                                            </template>
+                                        </div>
+                                        <div class="absolute top-full left-4 -mt-1 w-2 h-2 bg-gray-900 border-r border-b border-gray-700 transform rotate-45"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div @click.stop="copyID(voice.id)" 
+                         class="mt-auto flex items-center justify-between bg-[#0b0f19] border border-gray-800 rounded-lg px-3 py-2 cursor-pointer hover:bg-primary/10 hover:border-primary/50 transition-all group/copy relative shadow-inner">
+                        <div class="flex flex-col min-w-0">
+                            <span class="text-[8px] font-bold text-gray-500 uppercase tracking-widest mb-0.5">Voice ID</span>
+                            <span x-text="voice.id" class="text-[11px] font-mono font-medium text-gray-300 truncate group-hover/copy:text-white transition-colors"></span>
+                        </div>
+                        <div class="w-7 h-7 rounded bg-gray-800/50 flex items-center justify-center border border-gray-700 group-hover/copy:border-primary group-hover/copy:text-primary transition-all">
+                            <i data-lucide="copy" class="w-3.5 h-3.5 text-gray-400 group-hover/copy:text-white transition-colors"></i>
+                        </div>
+                    </div>
+                    
+                    <div x-show="currentId === voice.id" class="absolute bottom-0 left-0 h-1 bg-primary shadow-[0_0_15px_#2563eb] transition-all duration-100 z-50" :style="'width: ' + progress + '%'"></div>
+                </div>
+            </template>
+        </div>
+
+        <div x-show="!loading && displayedVoices.length < filteredCount" class="flex justify-center mt-10 mb-16">
+            <button @click="loadMore()" class="px-8 py-3 bg-card border border-border hover:border-primary rounded-full text-xs font-bold text-gray-300 hover:text-white shadow-lg backdrop-blur transition-all flex items-center gap-2">
+                Загрузить еще <span class="bg-black/40 px-2 py-0.5 rounded text-[10px]" x-text="filteredCount - displayedVoices.length"></span>
+            </button>
+        </div>
+        
+        <div x-show="!loading && filteredCount === 0" class="text-center py-20 opacity-50">
+            <i data-lucide="mic-off" class="w-10 h-10 mx-auto mb-3 text-gray-600"></i>
+            <p class="text-gray-500">Голоса не найдены по вашему запросу.</p>
+            <button @click="resetFilters()" class="text-primary text-sm mt-2 hover:underline font-bold">Сбросить фильтры</button>
+        </div>
+    </main>
+
+    <audio x-ref="player" @timeupdate="updateProgress" @ended="resetPlayer"></audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => lucide.createIcons());
+        function voiceApp() {
+            return {
+                useLocalAudio: true, // Локальные файлы ВКЛЮЧЕНЫ
+
+                db: { standard: [], public: [] },
+                options: { languages: [], use_cases: [], accents: [], genders: [], ages: [], descriptives: [], styles: [] },
+                activeTab: 'standard', 
+                filters: { search: '', sort: 'popular', language: '', gender: '', accent: '', age: '', descriptive: '', user_style: '' },
+                
+                filterLabels: {
+                    language: '🌐 Язык',
+                    user_style: '🎨 Стиль',
+                    descriptive: '🎭 Интонация',
+                    gender: '⚧ Пол',
+                    accent: '🗣 Акцент',
+                    age: '🎂 Возраст'
+                },
+
+                loading: true, page: 1, perPage: 48, currentId: null, isPlaying: false, progress: 0, toast: { show: false, message: '' },
+                
+                init() {
+                    this.loadData();
+                    this.$watch('displayedVoices', () => setTimeout(() => lucide.createIcons(), 50));
+                    this.$watch('activeTab', () => { this.page = 1; this.resetPlayer(); this.filters.search = ''; });
+                },
+
+                async loadData() {
+                    try {
+                        const now = Date.now();
+                        const [fRes, v1Res, v2Res] = await Promise.all([
+                            fetch('filters.json').then(r => r.json()),
+                            fetch('voices.json').then(r => r.json()),
+                            fetch('voices_2.json?t=' + now).then(r => r.json()) 
+                        ]);
+
+                        this.options = { 
+                            ...fRes, 
+                            descriptives: [],
+                            ages: [{ code: "young", name: "Young" }, { code: "middle_aged", name: "Middle_Aged" }, { code: "old", name: "Old" }],
+                            styles: ["Conversational", "Narration", "Characters", "Social Media", "Educational", "Advertisement", "Entertainment"]
+                        };
+
+                        let rawStd = [];
+                        if (Array.isArray(v1Res)) rawStd = v1Res;
+                        else if (v1Res.voices && Array.isArray(v1Res.voices)) rawStd = v1Res.voices;
+                        this.db.standard = rawStd.map(v => this.normalize(v, 'standard'));
+                        
+                        let rawPub = Array.isArray(v2Res) ? v2Res : (v2Res.voices || []);
+                        this.db.public = rawPub.map(v => this.normalize(v, 'public'));
+
+                        const allVoices = [...this.db.standard, ...this.db.public];
+                        const tones = new Set();
+                        allVoices.forEach(v => { if (v.descriptive && v.descriptive !== 'general') tones.add(v.descriptive); });
+                        this.options.descriptives = Array.from(tones).sort();
+                        this.loading = false;
+                    } catch (e) { 
+                        console.error(e); 
+                        alert("Ошибка данных! Проверьте JSON файлы."); 
+                    }
+                },
+
+                normalize(v, source) {
+                    const id = v.voice_id || v.public_owner_id;
+                    // ИСПРАВЛЕНИЕ: Добавлено .trim() чтобы убрать пробелы по краям
+                    const name = (source === 'standard' ? v.name.split(' - ')[0] : v.name).trim();
+                    const usage = v.usage_character_count_1y || v.cloned_by_count || 0;
+                    
+                    const rawStyle = v.labels?.use_case || v.use_case || v.category || '';
+                    const rawDesc = v.labels?.descriptive || v.descriptive || '';
+                    const combined = (rawStyle + ' ' + rawDesc).toLowerCase();
+                    let user_style = null;
+                    if (combined.includes('chat') || combined.includes('conversation')) user_style = "Conversational";
+                    else if (combined.includes('narrat') || combined.includes('story') || combined.includes('book')) user_style = "Narration";
+                    else if (combined.includes('game') || combined.includes('character') || combined.includes('anim')) user_style = "Characters";
+                    else if (combined.includes('social') || combined.includes('content') || combined.includes('video')) user_style = "Social Media";
+                    else if (combined.includes('educat') || combined.includes('train')) user_style = "Educational";
+                    else if (combined.includes('ad') || combined.includes('promo')) user_style = "Advertisement";
+                    else if (combined.includes('entertain') || combined.includes('tv')) user_style = "Entertainment";
+                    if (!user_style && rawStyle.includes('professional')) user_style = "Narration";
+
+                    // --- ЯЗЫКИ ---
+                    let exact_languages = [];
+                    let langsForFilter = new Set();
+                    const regionMap = { 'en': 'US', 'fr': 'FR', 'de': 'DE', 'es': 'ES', 'it': 'IT', 'pt': 'PT', 'pl': 'PL', 'hi': 'IN', 'zh': 'CN', 'ja': 'JP', 'ru': 'RU', 'uk': 'UA' };
+
+                    // 1. Из verified_languages
+                    if (v.verified_languages && Array.isArray(v.verified_languages)) {
+                        v.verified_languages.forEach(item => {
+                            if (item.language) langsForFilter.add(item.language.toLowerCase());
+                            if (item.locale) {
+                                const parts = item.locale.split('-');
+                                const langCode = parts[0].toLowerCase();
+                                langsForFilter.add(langCode);
+                                exact_languages.push({ id: item.locale, lang: langCode, region: parts[1] || regionMap[langCode] || '' });
+                            }
+                        });
+                    }
+                    
+                    // 2. Из fine_tuning (ДЛЯ STANDARD!)
+                    if (v.fine_tuning && v.fine_tuning.language) {
+                        const l = v.fine_tuning.language.toLowerCase();
+                        langsForFilter.add(l);
+                        if (exact_languages.length === 0) exact_languages.push({ id: l, lang: l, region: regionMap[l] || '' });
+                    }
+
+                    // 3. Из labels или просто language
+                    if (v.language) {
+                        const l = v.language.toLowerCase();
+                        langsForFilter.add(l);
+                        if (exact_languages.length === 0) exact_languages.push({ id: l, lang: l, region: regionMap[l] || '' });
+                    }
+
+                    // Fallback
+                    if (exact_languages.length === 0) { 
+                        exact_languages.push({ id: 'en', lang: 'en', region: 'US' }); 
+                        langsForFilter.add('en'); 
+                    }
+
+                    // Уникальные языки
+                    const uniqueLangs = [];
+                    const seenLangs = new Set();
+                    exact_languages.forEach(l => {
+                        const key = l.lang + (l.region || '');
+                        if (!seenLangs.has(key)) {
+                            seenLangs.add(key);
+                            uniqueLangs.push(l);
+                        }
+                    });
+
+                    let accent = (v.accent || v.labels?.accent || 'international').toLowerCase();
+
+                    return {
+                        id, name, preview: v.preview_url,
+                        languages: Array.from(langsForFilter), 
+                        exact_languages: uniqueLangs,
+                        style_code: rawStyle, style_display: this.formatStyle(rawStyle), category_name: this.formatCat(rawStyle),
+                        user_style, usage, 
+                        date: v.date_unix || 0,
+                        descriptive: v.labels?.descriptive || v.descriptive || null,
+                        gender: v.gender || v.labels?.gender || 'unknown', 
+                        age: v.age || v.labels?.age || 'unknown', 
+                        accent, 
+                        source
+                    };
+                },
+                formatStyle(str) { if (!str) return 'General'; return str.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()); },
+                formatCat(code) { const found = this.options.use_cases?.find(c => c.code === code); return found ? found.name : code.replace(/_/g, ' '); },
+                formatUsage(num) {
+                    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+                    if (num >= 1000) return (num / 1000).toFixed(0) + 'k';
+                    return num;
+                },
+                switchTab(tab) { this.activeTab = tab; },
+                
+                get filteredVoices() {
+                    const list = this.activeTab === 'standard' ? this.db.standard : this.db.public;
+                    const q = this.filters.search.toLowerCase().trim();
+                    const f = this.filters;
+                    
+                    let result = list.filter(v => {
+                        const matchSearch = v.name.toLowerCase().includes(q) || 
+                                          v.id.toLowerCase().includes(q) || 
+                                          v.style_display.toLowerCase().includes(q);
+                        
+                        const matchLang = !f.language || v.languages.includes(f.language);
+                        const matchAccent = !f.accent || (v.accent && v.accent.includes(f.accent.toLowerCase()));
+                        const matchGender = !f.gender || (v.gender === f.gender);
+                        const matchAge = !f.age || (v.age === f.age);
+                        const matchTone = !f.descriptive || (v.descriptive === f.descriptive);
+                        const matchStyle = !f.user_style || (v.user_style === f.user_style);
+                        return matchSearch && matchLang && matchGender && matchAccent && matchAge && matchTone && matchStyle;
+                    });
+                    
+                    if (f.sort === 'popular') result.sort((a, b) => b.usage - a.usage);
+                    else if (f.sort === 'latest') result.sort((a, b) => b.date - a.date);
+                    else if (f.sort === 'usage') result.sort((a, b) => b.usage - a.usage);
+                    // ИСПРАВЛЕНИЕ: Сортировка A-Z теперь игнорирует регистр (Aa) и правильно считает цифры
+                    else if (f.sort === 'az') result.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+                    
+                    return result;
+                },
+                get filteredCount() { return this.filteredVoices.length; },
+                get displayedVoices() { return this.filteredVoices.slice(0, this.page * this.perPage); },
+                loadMore() { this.page++; },
+                resetFilters() { this.filters = { search: '', sort: 'popular', language: '', gender: '', accent: '', age: '', descriptive: '', user_style: '' }; },
+                
+                // Проигрывание (с локальными папками)
+                toggleAudio(voice) {
+                    const p = this.$refs.player;
+                    
+                    if(this.currentId === voice.id && this.isPlaying) {
+                        p.pause(); 
+                        this.isPlaying = false;
+                    } else {
+                        this.currentId = voice.id;
+                        
+                        // Логика переключения источника
+                        if (this.useLocalAudio) {
+                            const folder = voice.source === 'standard' ? 'standard_previews' : 'audio_samples';
+                            p.src = `${folder}/${voice.id}.mp3`;
+                        } else {
+                            p.src = voice.preview;
+                        }
+                        
+                        p.play().catch(e => {
+                            console.error(e);
+                            this.toast.message = 'Файл не найден: ' + voice.id + '.mp3';
+                            this.toast.show = true; 
+                            setTimeout(() => this.toast.show = false, 3000);
+                        });
+                        this.isPlaying = true;
+                    }
+                },
+                
+                updateProgress() { const p = this.$refs.player; if(p.duration) this.progress = (p.currentTime/p.duration)*100; },
+                resetPlayer() { this.isPlaying = false; this.currentId = null; this.progress = 0; },
+                
+                // Копирование (исправлено для мобилок)
+                copyID(id) { 
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(id).then(() => {
+                            this.toast.message = 'ID скопирован'; 
+                            this.toast.show = true; 
+                            setTimeout(() => this.toast.show = false, 2000);
+                        }).catch(() => {
+                            this.fallbackCopy(id); 
+                        });
+                    } else {
+                        this.fallbackCopy(id);
+                    }
+                },
+                
+                fallbackCopy(text) {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = text;
+                    textArea.style.position = "fixed";
+                    textArea.style.left = "-9999px";
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    
+                    try {
+                        document.execCommand('copy');
+                        this.toast.message = 'ID скопирован'; 
+                        this.toast.show = true; 
+                    } catch (err) {
+                        console.error('Ошибка копирования', err);
+                        this.toast.message = 'Ошибка копирования'; 
+                        this.toast.show = true; 
+                    }
+                    
+                    document.body.removeChild(textArea);
+                    setTimeout(() => this.toast.show = false, 2000);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

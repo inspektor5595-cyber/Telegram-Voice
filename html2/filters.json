@@ -1,0 +1,520 @@
+{
+    "languages": [
+        {
+            "code": "ar",
+            "name": "Arabic"
+        },
+        {
+            "code": "bg",
+            "name": "Bulgarian"
+        },
+        {
+            "code": "zh",
+            "name": "Chinese"
+        },
+        {
+            "code": "hr",
+            "name": "Croatian"
+        },
+        {
+            "code": "cs",
+            "name": "Czech"
+        },
+        {
+            "code": "da",
+            "name": "Danish"
+        },
+        {
+            "code": "nl",
+            "name": "Dutch"
+        },
+        {
+            "code": "en",
+            "name": "English"
+        },
+        {
+            "code": "fil",
+            "name": "FIL"
+        },
+        {
+            "code": "fi",
+            "name": "Finnish"
+        },
+        {
+            "code": "fr",
+            "name": "French"
+        },
+        {
+            "code": "de",
+            "name": "German"
+        },
+        {
+            "code": "el",
+            "name": "Greek"
+        },
+        {
+            "code": "hu",
+            "name": "HU"
+        },
+        {
+            "code": "hi",
+            "name": "Hindi"
+        },
+        {
+            "code": "id",
+            "name": "Indonesian"
+        },
+        {
+            "code": "it",
+            "name": "Italian"
+        },
+        {
+            "code": "ja",
+            "name": "Japanese"
+        },
+        {
+            "code": "ko",
+            "name": "Korean"
+        },
+        {
+            "code": "ms",
+            "name": "Malay"
+        },
+        {
+            "code": "pl",
+            "name": "Polish"
+        },
+        {
+            "code": "pt",
+            "name": "Portuguese"
+        },
+        {
+            "code": "ro",
+            "name": "Romanian"
+        },
+        {
+            "code": "ru",
+            "name": "Russian"
+        },
+        {
+            "code": "sk",
+            "name": "Slovak"
+        },
+        {
+            "code": "es",
+            "name": "Spanish"
+        },
+        {
+            "code": "sv",
+            "name": "Swedish"
+        },
+        {
+            "code": "ta",
+            "name": "Tamil"
+        },
+        {
+            "code": "tr",
+            "name": "Turkish"
+        },
+        {
+            "code": "uk",
+            "name": "Ukrainian"
+        },
+        {
+            "code": "vi",
+            "name": "Vietnamese"
+        }
+    ],
+    "accents": [
+        {
+            "code": "african american",
+            "name": "African American"
+        },
+        {
+            "code": "american",
+            "name": "American"
+        },
+        {
+            "code": "argentine",
+            "name": "Argentine"
+        },
+        {
+            "code": "australian",
+            "name": "Australian"
+        },
+        {
+            "code": "bavarian",
+            "name": "Bavarian"
+        },
+        {
+            "code": "beijing mandarin",
+            "name": "Beijing Mandarin"
+        },
+        {
+            "code": "bengali",
+            "name": "Bengali"
+        },
+        {
+            "code": "berlinerisch",
+            "name": "Berlinerisch"
+        },
+        {
+            "code": "bihari",
+            "name": "Bihari"
+        },
+        {
+            "code": "brabantian",
+            "name": "Brabantian"
+        },
+        {
+            "code": "brazilian",
+            "name": "Brazilian"
+        },
+        {
+            "code": "british",
+            "name": "British"
+        },
+        {
+            "code": "budapest",
+            "name": "Budapest"
+        },
+        {
+            "code": "calabrese",
+            "name": "Calabrese"
+        },
+        {
+            "code": "canadian",
+            "name": "Canadian"
+        },
+        {
+            "code": "cebuano",
+            "name": "Cebuano"
+        },
+        {
+            "code": "central",
+            "name": "Central"
+        },
+        {
+            "code": "chicago",
+            "name": "Chicago"
+        },
+        {
+            "code": "chilean",
+            "name": "Chilean"
+        },
+        {
+            "code": "chinese",
+            "name": "Chinese"
+        },
+        {
+            "code": "colombian",
+            "name": "Colombian"
+        },
+        {
+            "code": "croatian",
+            "name": "Croatian"
+        },
+        {
+            "code": "cuban",
+            "name": "Cuban"
+        },
+        {
+            "code": "danish",
+            "name": "Danish"
+        },
+        {
+            "code": "dutch",
+            "name": "Dutch"
+        },
+        {
+            "code": "egyptian",
+            "name": "Egyptian"
+        },
+        {
+            "code": "european",
+            "name": "European"
+        },
+        {
+            "code": "filipino",
+            "name": "Filipino"
+        },
+        {
+            "code": "french",
+            "name": "French"
+        },
+        {
+            "code": "galician",
+            "name": "Galician"
+        },
+        {
+            "code": "german",
+            "name": "German"
+        },
+        {
+            "code": "gothenburg",
+            "name": "Gothenburg"
+        },
+        {
+            "code": "greek",
+            "name": "Greek"
+        },
+        {
+            "code": "gujarati",
+            "name": "Gujarati"
+        },
+        {
+            "code": "indian",
+            "name": "Indian"
+        },
+        {
+            "code": "irish",
+            "name": "Irish"
+        },
+        {
+            "code": "istanbul",
+            "name": "Istanbul"
+        },
+        {
+            "code": "italian",
+            "name": "Italian"
+        },
+        {
+            "code": "javanese",
+            "name": "Javanese"
+        },
+        {
+            "code": "kansai",
+            "name": "Kansai"
+        },
+        {
+            "code": "kanto",
+            "name": "Kanto"
+        },
+        {
+            "code": "kyushu",
+            "name": "Kyushu"
+        },
+        {
+            "code": "latin american",
+            "name": "Latin American"
+        },
+        {
+            "code": "levantine",
+            "name": "Levantine"
+        },
+        {
+            "code": "mazovian",
+            "name": "Mazovian"
+        },
+        {
+            "code": "mexican",
+            "name": "Mexican"
+        },
+        {
+            "code": "milanese",
+            "name": "Milanese"
+        },
+        {
+            "code": "modern standard",
+            "name": "Modern Standard"
+        },
+        {
+            "code": "moscow",
+            "name": "Moscow"
+        },
+        {
+            "code": "new york",
+            "name": "New York"
+        },
+        {
+            "code": "new zealand",
+            "name": "New Zealand"
+        },
+        {
+            "code": "nigerian",
+            "name": "Nigerian"
+        },
+        {
+            "code": "parisian",
+            "name": "Parisian"
+        },
+        {
+            "code": "peninsular",
+            "name": "Peninsular"
+        },
+        {
+            "code": "peruvian",
+            "name": "Peruvian"
+        },
+        {
+            "code": "polish",
+            "name": "Polish"
+        },
+        {
+            "code": "portuguese",
+            "name": "Portuguese"
+        },
+        {
+            "code": "puerto rican",
+            "name": "Puerto Rican"
+        },
+        {
+            "code": "punjabi",
+            "name": "Punjabi"
+        },
+        {
+            "code": "quebec",
+            "name": "Quebec"
+        },
+        {
+            "code": "received pronunciation",
+            "name": "Received Pronunciation"
+        },
+        {
+            "code": "rhine franconian",
+            "name": "Rhine Franconian"
+        },
+        {
+            "code": "russian",
+            "name": "Russian"
+        },
+        {
+            "code": "saudi",
+            "name": "Saudi"
+        },
+        {
+            "code": "scottish",
+            "name": "Scottish"
+        },
+        {
+            "code": "seoul",
+            "name": "Seoul"
+        },
+        {
+            "code": "sicilian",
+            "name": "Sicilian"
+        },
+        {
+            "code": "singaporean",
+            "name": "Singaporean"
+        },
+        {
+            "code": "south african",
+            "name": "South African"
+        },
+        {
+            "code": "southern",
+            "name": "Southern"
+        },
+        {
+            "code": "spanish",
+            "name": "Spanish"
+        },
+        {
+            "code": "standard",
+            "name": "Standard"
+        },
+        {
+            "code": "stockholm",
+            "name": "Stockholm"
+        },
+        {
+            "code": "swabian",
+            "name": "Swabian"
+        },
+        {
+            "code": "swedish",
+            "name": "Swedish"
+        },
+        {
+            "code": "taiwan mandarin",
+            "name": "Taiwan Mandarin"
+        },
+        {
+            "code": "tamil",
+            "name": "Tamil"
+        },
+        {
+            "code": "turkish",
+            "name": "Turkish"
+        },
+        {
+            "code": "tuscan",
+            "name": "Tuscan"
+        },
+        {
+            "code": "us midwest",
+            "name": "Us Midwest"
+        },
+        {
+            "code": "us southern",
+            "name": "Us Southern"
+        },
+        {
+            "code": "venezuelan",
+            "name": "Venezuelan"
+        },
+        {
+            "code": "welsh",
+            "name": "Welsh"
+        },
+        {
+            "code": "western",
+            "name": "Western"
+        },
+        {
+            "code": "yorkshire",
+            "name": "Yorkshire"
+        },
+        {
+            "code": "zagreb",
+            "name": "Zagreb"
+        }
+    ],
+    "use_cases": [
+        {
+            "code": "high_quality",
+            "name": "High Quality"
+        },
+        {
+            "code": "premade",
+            "name": "Premade"
+        },
+        {
+            "code": "professional",
+            "name": "Professional"
+        }
+    ],
+    "genders": [
+        {
+            "code": "female",
+            "name": "Female"
+        },
+        {
+            "code": "male",
+            "name": "Male"
+        },
+        {
+            "code": "neutral",
+            "name": "Neutral"
+        }
+    ],
+    "ages": [
+        {
+            "code": "middle_aged",
+            "name": "Middle_Aged"
+        },
+        {
+            "code": "middle_aged",
+            "name": "Middle_Aged"
+        },
+        {
+            "code": "old",
+            "name": "Old"
+        },
+        {
+            "code": "young",
+            "name": "Young"
+        }
+    ]
+}
